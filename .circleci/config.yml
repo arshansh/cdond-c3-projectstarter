@@ -193,7 +193,7 @@ jobs:
 
   configure-infrastructure:
       docker:
-        - image: ansible/ansible
+        - image: python:3.7-alpine3.11
       steps:
         # Checkout code from git
         - checkout
@@ -207,13 +207,11 @@ jobs:
         - run:
             name: Install dependencies
             command: |
-              # Your code here
-              exit 1
+              apk add --update ansible # install the dependencies needed for your playbook
         - run:
             name: Configure server
             command: |
-              # Your code here
-              exit 1
+              ansible-playbook -i ./ansible/inventory.txt ./ansible/configure-server.yml
         # Here's where you will add some code to rollback on failure 
             
 workflows:
