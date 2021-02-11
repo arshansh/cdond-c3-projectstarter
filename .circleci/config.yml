@@ -212,7 +212,7 @@ jobs:
         - run:
             name: Configure server
             command: |
-              cat << EOF > backend/.env
+              cat \<< EOF > backend/.env
               TYPEORM_CONNECTION=$TYPEORM_CONNECTION
               TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR
               TYPEORM_ENTITIES=$TYPEORM_ENTITIES
