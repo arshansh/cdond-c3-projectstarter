@@ -3,12 +3,14 @@
   apt:
     name: "*"
     state: latest
+    update_cache: yes
 
 - name: "Install NodeJS"
   become: yes
   apt:
     name: nodejs
     state: latest
+    update_cache: yes
 
 - name: "Install pm2"
   become: yes
