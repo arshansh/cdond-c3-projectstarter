@@ -208,10 +208,24 @@ jobs:
             name: Install dependencies
             command: |
               apk add --update ansible # install the dependencies needed for your playbook
+              pip install awscli
         - run:
             name: Configure server
             command: |
-              cat ~/project/backend/.env
+              cat << EOF > backend/.env
+              TYPEORM_CONNECTION=$TYPEORM_CONNECTION
+              TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR
+              TYPEORM_ENTITIES=$TYPEORM_ENTITIES
+              TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS
+
+              # Things you can change if you wish...
+              TYPEORM_HOST=$TYPEORM_HOST
+              TYPEORM_PORT=$TYPEORM_PORT
+              TYPEORM_USERNAME=$TYPEORM_USERNAME
+              TYPEORM_PASSWORD=$TYPEORM_PASSWORD
+              TYPEORM_DATABASE=$TYPEORM_DATABASE
+              EOF
+              cat  backend/.env
               cat .circleci/ansible/inventory.txt
               ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
         # Here's where you will add some code to rollback on failure 
