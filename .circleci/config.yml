@@ -30,7 +30,7 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS=
+            SUCCESS=$(curl -H "token: migration_<< parameters.workflowId >>" --request GET https://api.memstash.io/values/migration_<< parameters.workflowId >>)
             SUCCESS = 1
             if(( $SUCCESS==1 )); 
             then
@@ -217,7 +217,36 @@ jobs:
         # Here's where you will add some code to rollback on failure 
         - destroy-environment:
             workflowId: "${CIRCLE_WORKFLOW_ID}"
-            
+  run-migrations:
+      docker:
+        - image: circleci/node:13.8.0
+      steps:
+        # Checkout code from git
+        - checkout
+        - run:
+            name: Run migrations
+            command: |
+              # Your code here
+              MIGRATIONS_RESULT= $(npm run migrations)
+              echo $MIGRATIONS_RESULT
+              if [ `grep -q "has been executed successfully" MIGRATIONS_RESULT` ]; then
+              MIGRATIONS_APPLIED=1
+              else
+              MIGRATIONS_APPLIED=0
+              echo $MIGRATIONS_APPLIED
+        - run:
+            name: Send migration results to memstash
+            command: |
+              if(( $MIGRATIONS_APPLIED==1 )); 
+              then
+              curl -H "Content-Type: text/plain" -H "token: migration_${CIRCLE_WORKFLOW_ID}" --request PUT --data "$MIGRATIONS_APPLIED" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}                
+              fi
+      # Here's where you will add some code to rollback on failure 
+        - destroy-environment:
+            workflowId: "${CIRCLE_WORKFLOW_ID}"
+        - revert-migrations:
+            workflowId: "${CIRCLE_WORKFLOW_ID}"
+
 workflows:
   default:
     jobs:
@@ -237,5 +266,7 @@ workflows:
             branches:
               only: [master]     
       - configure-infrastructure:
-          requires: [deploy-infrastructure]                   
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]                             
           
