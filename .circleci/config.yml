@@ -267,7 +267,7 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
-            curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -
+            curl -sL https://rpm.nodesource.com/setup_10.x | bash -
             yum install -y nodejs
       - run:
           name: Get backend url
