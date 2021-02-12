@@ -28,6 +28,7 @@ commands:
       - run:
           name: Revert migrations
           # Add when this will run
+          when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS=$(curl -H "token: migration_<< parameters.workflowId >>" --request GET https://api.memstash.io/values/migration_<< parameters.workflowId >>)
@@ -237,22 +238,18 @@ jobs:
               cd backend
               npm i
               npm run migrations > migrations.txt
-              cat migrations.txt
+              cat migrations.txt          
+        - run:
+            name: Send migration results to memstash
+            command: |
               if(( `grep "has been executed successfully" migrations.txt`)); 
               then
               MIGRATIONS_APPLIED=1
               else
               MIGRATIONS_APPLIED=0
               fi 
-              echo $MIGRATIONS_APPLIED             
-        - run:
-            name: Send migration results to memstash
-            command: |
-              echo $MIGRATIONS_APPLIED  
-              if(( `$MIGRATIONS_APPLIED==1` )); 
-              then
+              echo $MIGRATIONS_APPLIED    
               curl -H "Content-Type: text/plain" -H "token: migration_${CIRCLE_WORKFLOW_ID}" --request PUT --data "$MIGRATIONS_APPLIED" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}                
-              fi
       # Here's where you will add some code to rollback on failure 
         - destroy-environment:
             workflowId: "${CIRCLE_WORKFLOW_ID}"
