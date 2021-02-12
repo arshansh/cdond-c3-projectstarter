@@ -235,6 +235,7 @@ jobs:
             command: |
               # Your code here
               cd backend
+              npm i
               MIGRATIONS_RESULT=`npm run migrations`
               echo $MIGRATIONS_RESULT
               if [ `grep -q "has been executed successfully" MIGRATIONS_RESULT` ]; then
