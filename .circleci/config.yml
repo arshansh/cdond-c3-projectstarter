@@ -235,7 +235,8 @@ jobs:
             command: |
               # Your code here
               cd backend
-              npm run migrations | tee out.txt
+              ls -l
+              npm run migrations > out.txt
               ls -l
               cat out.txt
               if [ `grep "has been executed successfully" out.txt` ]; then
