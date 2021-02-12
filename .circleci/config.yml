@@ -235,10 +235,12 @@ jobs:
             name: Run migrations
             command: |
               # Your code here
+              npm run migrations:revert
               cd backend
               npm i
               npm run migrations > migrations.txt
-              cat migrations.txt          
+              cat migrations.txt
+              exit 1          
         - run:
             name: Send migration results to memstash
             command: |
