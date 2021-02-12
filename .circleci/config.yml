@@ -236,14 +236,7 @@ jobs:
               # Your code here
               cd backend
               ls -l
-              npm run migrations > out.txt
-              ls -l
-              cat out.txt
-              if [ `grep "has been executed successfully" out.txt` ]; then
-              MIGRATIONS_APPLIED=1
-              else
-              MIGRATIONS_APPLIED=0
-              echo $MIGRATIONS_APPLIED
+              npm run migrations
         - run:
             name: Send migration results to memstash
             command: |
