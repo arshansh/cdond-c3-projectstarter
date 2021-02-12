@@ -235,7 +235,7 @@ jobs:
             command: |
               # Your code here
               cd backend
-              MIGRATIONS_RESULT= $(npm run migrations)
+              MIGRATIONS_RESULT=`npm run migrations`
               echo $MIGRATIONS_RESULT
               if [ `grep -q "has been executed successfully" MIGRATIONS_RESULT` ]; then
               ls -l
