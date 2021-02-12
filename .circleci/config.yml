@@ -31,7 +31,7 @@ commands:
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS=$(curl -H "token: migration_<< parameters.workflowId >>" --request GET https://api.memstash.io/values/migration_<< parameters.workflowId >>)
-            SUCCESS = 1
+            echo $SUCCESS
             if(( $SUCCESS==1 )); 
             then
             cd ~/project/backend
@@ -236,9 +236,9 @@ jobs:
               # Your code here
               cd backend
               npm i
-              MIGRATIONS_RESULT=`npm run migrations`
-              echo $MIGRATIONS_RESULT
-              if(( `grep -q "has been executed successfully" $MIGRATIONS_RESULT`)); 
+              npm run migrations > migrations.txt
+              cat migrations.txt
+              if(( `grep "has been executed successfully" migrations.txt`)); 
               then
               MIGRATIONS_APPLIED=1
               else
