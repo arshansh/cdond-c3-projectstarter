@@ -13,6 +13,7 @@ commands:
           when: on_fail
           command: |
             # Your code here
+            aws s3 rm s3://udapeople-arshan-bucket --recursive
             aws cloudformation delete-stack \
               --stack-name "frontend-stack-<< parameters.workflowId >>"
             aws cloudformation delete-stack \
@@ -156,14 +157,14 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --tags project=udapeople-backend-${CIRCLE_WORKFLOW_ID} \
-                --stack-name "backend-stack-${CIRCLE_WORKFLOW_ID}" \
-                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
+              --tags project=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+                --stack-name "backend-stack-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: save backend url to memstash
           command: |
             BACKEND_IP=$(aws ec2 describe-instances \
-              --filter "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID}" \
+              --filter "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query "Reservations[*].Instances[*].[PublicIpAddress]" \
               --output text)
             echo $BACKEND_IP
@@ -173,9 +174,9 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags project=udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
-                --stack-name "frontend-stack-${CIRCLE_WORKFLOW_ID}" \
-                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
+              --tags project=udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+                --stack-name "frontend-stack-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -190,7 +191,7 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
-          workflowId: "${CIRCLE_WORKFLOW_ID}"
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   configure-infrastructure:
       docker:
@@ -217,7 +218,7 @@ jobs:
               ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
         # Here's where you will add some code to rollback on failure 
         - destroy-environment:
-            workflowId: "${CIRCLE_WORKFLOW_ID}"
+            workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
   run-migrations:
       docker:
         - image: circleci/node:13.8.0
@@ -253,7 +254,7 @@ jobs:
               curl -H "Content-Type: text/plain" -H "token: migration_${CIRCLE_WORKFLOW_ID}" --request PUT --data "$MIGRATIONS_APPLIED" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}             
       # Here's where you will add some code to rollback on failure 
         - destroy-environment:
-            workflowId: "${CIRCLE_WORKFLOW_ID}"
+            workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
         - revert-migrations:
             workflowId: "${CIRCLE_WORKFLOW_ID}"
 
@@ -287,14 +288,34 @@ jobs:
             cd frontend
             npm i
             npm run build
-            aws s3 cp ./dist s3://udapeople-arshan-bucket --recursive
+            aws s3 cp ./dist s3://udapeople-{CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
-            workflowId: "${CIRCLE_WORKFLOW_ID}"
+            workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
             workflowId: "${CIRCLE_WORKFLOW_ID}" 
 workflows:
   default:
     jobs:
-      - deploy-frontend                                
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]                                  
           
