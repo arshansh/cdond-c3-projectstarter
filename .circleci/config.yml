@@ -276,12 +276,16 @@ jobs:
             BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/${CIRCLE_WORKFLOW_ID})
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
+      # Restore from cache
+      - restore_cache:
+          keys: [frontend-build]             
       - run:
           name: Deploy frontend objects
           command: |
             # your code here
             echo "${API_URL}"
             cd frontend
+            npm i
             npm run build
             aws s3 cp ./dist s3://udapeople-arshan-bucket --recursive
       # Here's where you will add some code to rollback on failure
@@ -292,25 +296,5 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]                                  
+      - deploy-frontend                                
           
