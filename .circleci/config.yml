@@ -238,14 +238,13 @@ jobs:
               npm i
               MIGRATIONS_RESULT=`npm run migrations`
               echo $MIGRATIONS_RESULT
-              if [ `grep -q "has been executed successfully" MIGRATIONS_RESULT` ]; then
-              ls -l
-              cat out.txt
-              if [ `grep "has been executed successfully" out.txt` ]; then
+              if(( `grep -q "has been executed successfully" MIGRATIONS_RESULT`)); 
+              then
               MIGRATIONS_APPLIED=1
               else
               MIGRATIONS_APPLIED=0
-              echo $MIGRATIONS_APPLIED
+              fi 
+              echo $MIGRATIONS_APPLIED             
         - run:
             name: Send migration results to memstash
             command: |
