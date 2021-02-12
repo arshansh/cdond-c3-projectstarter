@@ -242,6 +242,7 @@ jobs:
         - run:
             name: Send migration results to memstash
             command: |
+              cd backend
               if(( `grep "has been executed successfully" migrations.txt`)); 
               then
               MIGRATIONS_APPLIED=1
