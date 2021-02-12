@@ -227,15 +227,31 @@ jobs:
             name: Install dependencies
             command: |
               sudo apt-get update && sudo apt-get install -y awscli
+      # Restore from cache
+        - restore_cache:
+            keys: [backend-build]              
         - run:
             name: Run migrations
             command: |
               # Your code here
+              cat \<< EOF > backend/.env
+              TYPEORM_CONNECTION=$TYPEORM_CONNECTION
+              TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR
+              TYPEORM_ENTITIES=$TYPEORM_ENTITIES
+              TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS
+
+              # Things you can change if you wish...
+              TYPEORM_HOST=$TYPEORM_HOST
+              TYPEORM_PORT=$TYPEORM_PORT
+              TYPEORM_USERNAME=$TYPEORM_USERNAME
+              TYPEORM_PASSWORD=$TYPEORM_PASSWORD
+              TYPEORM_DATABASE=$TYPEORM_DATABASE
+              EOF
+              cat  backend/.env
               cd backend
-              npm i
-              MIGRATIONS_RESULT= $(npm run migrations)
-              echo $MIGRATIONS_RESULT
-              if [ `grep -q "has been executed successfully" MIGRATIONS_RESULT` ]; then
+              npm run migrations | tee out.txt
+              cat out.txt
+              if [ `grep "has been executed successfully" out.txt` ]; then
               MIGRATIONS_APPLIED=1
               else
               MIGRATIONS_APPLIED=0
