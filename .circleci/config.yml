@@ -267,6 +267,8 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
+            curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -
+            yum install -y nodejs
       - run:
           name: Get backend url
           command: |
@@ -278,6 +280,7 @@ jobs:
           name: Deploy frontend objects
           command: |
             # your code here
+            echo "${API_URL}"
             cd frontend
             npm run build
             aws s3 cp ./dist s3://udapeople-arshan-bucket --recursive
