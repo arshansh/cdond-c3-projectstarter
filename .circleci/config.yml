@@ -238,7 +238,7 @@ jobs:
               npm i
               MIGRATIONS_RESULT=`npm run migrations`
               echo $MIGRATIONS_RESULT
-              if(( `grep -q "has been executed successfully" MIGRATIONS_RESULT`)); 
+              if(( `grep -q "has been executed successfully" $MIGRATIONS_RESULT`)); 
               then
               MIGRATIONS_APPLIED=1
               else
