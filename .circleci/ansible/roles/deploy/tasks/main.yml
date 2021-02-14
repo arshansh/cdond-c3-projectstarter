@@ -1,0 +1,21 @@
+- name: "update packages"
+  become: yes
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+
+- name: "installing dependencies"
+  become: yes
+  npm:
+    path: ./backend/
+
+- name: "start pm2"
+  become: yes
+  shell: pm2 start --name "backend" npm -- start
+  args:
+    chdir: ./backend
+
+- name: "list pm2 processes"
+  become: yes
+  shell: pm2 ls
