@@ -5,13 +5,19 @@
     state: latest
     update_cache: yes
 
+- name: "Copy backend tar.gz"
+  become: yes
+  unarchive:
+    src: ~/project/backend.tar.gz
+    dest: ~/
+
 - name: "installing dependencies"
   become: yes
   npm:
-    path: ./backend/
+    path: ~/backend/
 
 - name: "start pm2"
   become: yes
   shell: pm2 start --name "backend" npm -- start
   args:
-    chdir: ./backend
+    chdir: ~/backend
