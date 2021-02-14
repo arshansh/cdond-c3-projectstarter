@@ -273,21 +273,20 @@ jobs:
       - restore_cache:
           keys: [frontend-build]              
       - run:
-          name: Get backend url
+          name: Get backend url and deploy
           command: |
             # your code here
             BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/${CIRCLE_WORKFLOW_ID})
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-            cd frontend
             npm i
-            npm run build                   
-      - run:
-          name: Deploy frontend objects
-          command: |
-            cd frontend 
+            npm run build  
             aws s3 cp ./dist s3://udapeople-"{CIRCLE_WORKFLOW_ID:0:7}" --recursive
-
+      # Here's where you will add some code to rollback on failure 
+      - destroy-environment:
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflowId: "${CIRCLE_WORKFLOW_ID}"
 
   deploy-backend:
     docker:
@@ -315,7 +314,11 @@ jobs:
             # your code here
             tar -zcvf backend.tar.gz backend
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
-
+      # Here's where you will add some code to rollback on failure 
+      - destroy-environment:
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflowId: "${CIRCLE_WORKFLOW_ID}"
   smoke-test:
     docker:
       - image: python:3.7-alpine3.11
