@@ -9,10 +9,10 @@
   become: yes
   unarchive:
     src: ~/project/backend.tar.gz
-    dest: ~/
+    dest: /home/ubuntu
 
 - name: "installing dependencies"
-  become: yes
+  become: /home/ubuntu/backend
   npm:
     path: ~/backend
 
@@ -20,4 +20,4 @@
   become: yes
   shell: pm2 start --name "backend" npm -- start
   args:
-    chdir: ~/backend
+    chdir: /home/ubuntu/backend
