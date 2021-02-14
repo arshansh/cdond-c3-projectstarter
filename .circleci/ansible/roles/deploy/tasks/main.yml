@@ -12,9 +12,9 @@
     dest: /home/ubuntu
 
 - name: "installing dependencies"
-  become: /home/ubuntu/backend
+  become: yes
   npm:
-    path: ~/backend
+    path: /home/ubuntu/backend
 
 - name: "start pm2"
   become: yes
