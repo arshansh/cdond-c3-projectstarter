@@ -28,4 +28,4 @@
 
 - name: "start pm2"
   become: yes
-  shell: sudo env PATH=$PATH:/usr/local/bin pm2 startup
+  shell: env PATH=$PATH:/usr/local/bin pm2 startup
