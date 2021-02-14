@@ -319,11 +319,6 @@ jobs:
             # your code here
             tar -zcvf backend.tar.gz backend
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
-      # Here's where you will add some code to rollback on failure
-      - destroy-environment:
-            workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
-      - revert-migrations:
-            workflowId: "${CIRCLE_WORKFLOW_ID}" 
 
   smoke-test:
     docker:
