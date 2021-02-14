@@ -286,7 +286,7 @@ jobs:
           name: Deploy frontend objects
           command: |
             cd frontend 
-            aws s3 cp ./dist s3://udapeople-{CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 cp ./dist s3://udapeople-"{CIRCLE_WORKFLOW_ID:0:7}" --recursive
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
             workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
@@ -309,6 +309,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            sudo apt-get update && sudo apt-get install -y awscli && sudo apt-get install -y curl         
             pip install awscli
             pip install curl
             apk add --update ansible # install the dependencies needed for your playbook
@@ -335,6 +336,7 @@ jobs:
           command: |
             # your code here
             pip install curl
+            pip install awscli
       - run:
           name: Get backend url
           command: |
