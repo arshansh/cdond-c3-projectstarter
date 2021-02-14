@@ -14,7 +14,7 @@
 - name: "installing dependencies"
   become: yes
   npm:
-    path: ~/backend/
+    path: ~/backend
 
 - name: "start pm2"
   become: yes

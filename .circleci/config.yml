@@ -311,6 +311,7 @@ jobs:
           command: |
             apk add --update ansible # install the dependencies needed for your playbook
             pip install awscli
+            pip install curl
       - run:
           name: Deploy backend
           command: |
