@@ -15,7 +15,3 @@
   shell: pm2 start --name "backend" npm -- start
   args:
     chdir: ./backend
-
-- name: "list pm2 processes"
-  become: yes
-  shell: pm2 ls
