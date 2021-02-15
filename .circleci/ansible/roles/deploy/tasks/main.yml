@@ -16,6 +16,11 @@
   npm:
     path: /home/ubuntu/backend
 
+  
+- name: "pm2 ls"
+  become: yes
+  shell: pm2 ls
+
 - name: "start pm2"
   become: yes
   shell: pm2 start --name "backend" npm -- start

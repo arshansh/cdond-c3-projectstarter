@@ -29,8 +29,3 @@
 - name: "startup pm2"
   become: yes
   shell: env PATH=$PATH:/usr/local/bin pm2 startup
-
-  
-- name: "start pm2"
-  become: yes
-  shell: pm2 ls
