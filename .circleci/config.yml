@@ -365,10 +365,10 @@ jobs:
             return 0
             fi
       # Here's where you will add some code to rollback on failure 
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+      - destroy-environment:
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflowId: "${CIRCLE_WORKFLOW_ID}"
 
   cloudfront-update:
     docker:
