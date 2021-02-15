@@ -20,6 +20,8 @@
 - name: "pm2 ls"
   become: yes
   shell: pm2 ls
+  args:
+    chdir: /home/ubuntu/backend  
 
 - name: "start pm2"
   become: yes
