@@ -370,38 +370,18 @@ jobs:
       - revert-migrations:
           workflowId: "${CIRCLE_WORKFLOW_ID}"
 
-  cloudfront-update:
-    docker:
-      - image: amazon/aws-cli:2.0.6
-    steps:
-      # Checkout code from git
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            # your code here
-            curl -sL https://rpm.nodesource.com/setup_10.x | bash -
-            yum install -y nodejs
-      - run:
-          name: Update cloudfront distribution
-          command: |
-            # your code here
-            aws cloudformation deploy \
-              --template-file .circleci/files/cloudfront.yml \
-                --stack-name "udapeoplecloudfront" \
-                --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
-      # Here's where you will add some code to rollback on failure 
-      - destroy-environment:
-          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
-      - revert-migrations:
-          workflowId: "${CIRCLE_WORKFLOW_ID}"    
-
-  cleanup:
+  cloudfront-cleanup:
       docker:
         - image: amazon/aws-cli:2.0.6
       steps:
         # Checkout code from git
         - checkout
+        - run:
+            name: Install dependencies
+            command: |
+              # your code here
+              curl -sL https://rpm.nodesource.com/setup_10.x | bash -
+              yum install -y nodejs        
         - run:
             name: Get old stack workflow id
             command: |
@@ -413,16 +393,25 @@ jobs:
                   --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
 
               echo $OldWorkflowID
-              echo $STACKS
-                
+              echo ${STACKS[*]}
+
+              aws cloudformation deploy \
+                --template-file .circleci/files/cloudfront.yml \
+                  --stack-name "udapeoplecloudfront" \
+                  --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
+
               if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
               then
                 # your code here
-                aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-                aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}" 
+                aws cloudformation delete-stack --stack-name "backend-stack-${OldWorkflowID}"
+                aws cloudformation delete-stack --stack-name "frontend-stack-${OldWorkflowID}" 
                 aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive                           
               fi                  
-
+        # Here's where you will add some code to rollback on failure 
+        - destroy-environment:
+            workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
+        - revert-migrations:
+            workflowId: "${CIRCLE_WORKFLOW_ID}"   
                                                           
 workflows:
   default:
@@ -441,7 +430,5 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
+      - cloudfront-cleanup:
           requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
