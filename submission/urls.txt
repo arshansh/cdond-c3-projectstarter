@@ -1,7 +1,7 @@
 URL01= https://github.com/arshansh/cdond-c3-projectstarter
-URL02= http://udapeople-eee1bd5.s3-website-us-west-2.amazonaws.com/#/employees
-URL03= d2fkitb2u6sc40.cloudfront.net
-URL04= ec2-34-216-41-141.us-west-2.compute.amazonaws.com
+URL02= http://udapeople-a002e3b.s3-website-us-west-2.amazonaws.com
+URL03= di6hwuf71yxln.cloudfront.net
+URL04= ec2-34-220-117-115.us-west-2.compute.amazonaws.com
 URL05= http://ec2-54-202-49-205.us-west-2.compute.amazonaws.com:9090/targets
-URL6= https://github.com/arshansh/cdond-c3-projectstarter
-URL7= https://app.circleci.com/pipelines/github/arshansh/cdond-c3-projectstarter
+URL06= https://github.com/arshansh/cdond-c3-projectstarter
+URL07= https://app.circleci.com/pipelines/github/arshansh/cdond-c3-projectstarter
